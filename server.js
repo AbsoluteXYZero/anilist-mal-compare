@@ -140,6 +140,123 @@ async function fetchMAL(username) {
   return entries;
 }
 
+// ── AniList → MAL export ─────────────────────────────────────────────────────
+
+const AL_TO_MAL_STATUS = {
+  CURRENT:   'Watching',
+  COMPLETED: 'Completed',
+  PAUSED:    'On-Hold',
+  DROPPED:   'Dropped',
+  PLANNING:  'Plan to Watch',
+  REPEATING: 'Watching',
+};
+
+async function fetchAniListForExport(username) {
+  const query = `
+    query ($userName: String) {
+      MediaListCollection(userName: $userName, type: ANIME) {
+        lists {
+          entries {
+            media { idMal title { romaji english } episodes }
+            status
+            score(format: POINT_10)
+            progress
+          }
+        }
+      }
+    }
+  `;
+  const { signal, clear } = withTimeout(20000);
+  let res;
+  try {
+    res = await fetch('https://graphql.anilist.co', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify({ query, variables: { userName: username } }),
+      signal,
+    });
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? 'AniList request timed out' : `AniList unreachable: ${err.message}`);
+  } finally {
+    clear();
+  }
+
+  const json = await safeJson(res, 'AniList');
+  if (json.errors) throw new Error(`AniList: ${json.errors[0]?.message ?? 'Unknown error'}`);
+
+  const all = json.data.MediaListCollection.lists.flatMap(l => l.entries);
+  const skipped = all.filter(e => !e.media.idMal).map(e => e.media.title.english || e.media.title.romaji);
+  const entries = all
+    .filter(e => e.media.idMal)
+    .map(e => ({
+      malId:       e.media.idMal,
+      title:       e.media.title.english || e.media.title.romaji,
+      episodes:    e.media.episodes || 0,
+      progress:    e.progress,
+      score:       e.score,
+      status:      AL_TO_MAL_STATUS[e.status] ?? 'Completed',
+      rewatching:  e.status === 'REPEATING' ? 1 : 0,
+    }));
+  return { entries, skipped };
+}
+
+function buildMalXml(username, entries) {
+  const counts = { Watching: 0, Completed: 0, 'On-Hold': 0, Dropped: 0, 'Plan to Watch': 0 };
+  for (const e of entries) counts[e.status] = (counts[e.status] || 0) + 1;
+
+  const nodes = entries.map(e => `  <anime>
+    <series_animedb_id>${e.malId}</series_animedb_id>
+    <series_title><![CDATA[${e.title}]]></series_title>
+    <series_episodes>${e.episodes}</series_episodes>
+    <my_id>0</my_id>
+    <my_watched_episodes>${e.progress}</my_watched_episodes>
+    <my_start_date>0000-00-00</my_start_date>
+    <my_finish_date>0000-00-00</my_finish_date>
+    <my_score>${e.score}</my_score>
+    <my_status>${e.status}</my_status>
+    <my_rewatching>${e.rewatching}</my_rewatching>
+    <my_rewatching_ep>0</my_rewatching_ep>
+    <my_times_watched>0</my_times_watched>
+    <my_priority>LOW</my_priority>
+    <my_comments><![CDATA[]]></my_comments>
+    <my_tags><![CDATA[]]></my_tags>
+    <my_discuss>0</my_discuss>
+    <my_sns>default</my_sns>
+    <update_on_import>1</update_on_import>
+  </anime>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<myanimelist>
+  <myinfo>
+    <user_export_type>1</user_export_type>
+    <user_total_anime>${entries.length}</user_total_anime>
+    <user_total_watching>${counts['Watching']}</user_total_watching>
+    <user_total_completed>${counts['Completed']}</user_total_completed>
+    <user_total_onhold>${counts['On-Hold']}</user_total_onhold>
+    <user_total_dropped>${counts['Dropped']}</user_total_dropped>
+    <user_total_plantowatch>${counts['Plan to Watch']}</user_total_plantowatch>
+  </myinfo>
+${nodes}
+</myanimelist>`;
+}
+
+app.get('/api/export/anilist-to-mal', async (req, res) => {
+  const username = (req.query.username ?? '').trim();
+  if (!username) return res.status(400).json({ error: 'Username is required.' });
+  if (username.length > 100) return res.status(400).json({ error: 'Username is too long.' });
+
+  try {
+    const { entries, skipped } = await fetchAniListForExport(username);
+    const xml = buildMalXml(username, entries);
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="mal-import-${username}.xml"`);
+    res.setHeader('X-Skipped-Count', skipped.length);
+    res.send(xml);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/compare', async (req, res) => {
   const alUser  = (req.query.al  ?? '').trim();
   const malUser = (req.query.mal ?? '').trim();
