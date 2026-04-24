@@ -55,7 +55,7 @@
     }
 
     .field { display: flex; flex-direction: column; gap: 6px; }
-    label { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+    label { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; display: inline-flex; align-items: center; gap: 6px; }
 
     input {
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
@@ -234,20 +234,16 @@
 <body>
 
   <img src="/favicon.png" alt="Hannya" style="width:64px;height:64px;margin-bottom:4px">
-  <div class="badges">
-    <a class="badge al" href="https://anilist.co" target="_blank" rel="noopener">AniList</a>
-    <a class="badge mal" href="https://myanimelist.net" target="_blank" rel="noopener">MyAnimeList</a>
-  </div>
   <h1>Anime List Comparison</h1>
   <p class="subtitle">Find what's out of sync between your AniList and MAL.</p>
 
   <form id="form">
     <div class="field">
-      <label>AniList Username</label>
+      <label><a class="badge al" href="https://anilist.co" target="_blank" rel="noopener">AniList</a> Username</label>
       <input id="alUser" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
     </div>
     <div class="field">
-      <label>MyAnimeList Username</label>
+      <label><a class="badge mal" href="https://myanimelist.net" target="_blank" rel="noopener">MyAnimeList</a> Username</label>
       <input id="malUser" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
     </div>
     <button id="btn" type="submit">Compare Lists</button>
@@ -266,7 +262,7 @@
 
   <div class="divider">
     <div class="divider-line"></div>
-    <span class="divider-label">Migrate Between Services</span>
+    <span class="divider-label">Migrating Between Services</span>
     <div class="divider-line"></div>
   </div>
 
