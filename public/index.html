@@ -528,9 +528,9 @@
       a.download = `mal-import-${username}.xml`;
       a.click();
       URL.revokeObjectURL(url);
-      okEl.textContent = skipped > 0
+      okEl.innerHTML = skipped > 0
         ? `Downloaded. ${skipped} entr${skipped === 1 ? 'y was' : 'ies were'} skipped (no MAL equivalent).`
-        : 'Downloaded successfully. Import it at myanimelist.net/import.php.';
+        : `Downloaded successfully.<br>Import it at <a href="https://myanimelist.net/import.php" target="_blank" rel="noopener" style="color:var(--green);text-underline-offset:2px">myanimelist.net/import.php</a>.`;
       okEl.style.display = 'block';
     } catch (ex) {
       errEl.textContent = ex.message;
