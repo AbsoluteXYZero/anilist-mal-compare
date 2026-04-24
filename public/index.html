@@ -167,6 +167,64 @@
     .empty-note { padding: 14px 18px; font-size: 0.85rem; color: var(--green); }
     .all-clear { text-align: center; padding: 40px 20px; color: var(--green); font-size: 1.1rem; font-weight: 600; }
 
+    .divider {
+      width: 100%; max-width: 540px; margin: 48px 0 32px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
+
+    .migrate-grid {
+      width: 100%; max-width: 760px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 600px) { .migrate-grid { grid-template-columns: 1fr; } }
+
+    .migrate-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .migrate-card h3 { font-size: 0.95rem; font-weight: 700; }
+    .migrate-card h3 .arrow { color: var(--muted); font-weight: 400; margin: 0 4px; }
+
+    .migrate-card .field { gap: 6px; }
+
+    .migrate-btn {
+      background: var(--surface); border: 1px solid var(--accent); border-radius: 8px;
+      color: var(--accent); cursor: pointer; font-size: 0.88rem; font-weight: 600;
+      padding: 9px; transition: background 0.15s, opacity 0.15s; margin-top: auto;
+    }
+    .migrate-btn:hover  { background: rgba(88,166,255,0.1); }
+    .migrate-btn:active { opacity: 0.7; }
+    .migrate-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .migrate-note {
+      font-size: 0.78rem; color: var(--muted); line-height: 1.5;
+    }
+    .migrate-note a { color: var(--accent); text-decoration: none; }
+    .migrate-note a:hover { text-decoration: underline; }
+
+    .steps { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .steps li {
+      font-size: 0.82rem; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5;
+    }
+    .step-num {
+      background: var(--border); color: var(--text); border-radius: 50%;
+      width: 18px; height: 18px; font-size: 0.68rem; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .steps a { color: var(--accent); text-decoration: none; }
+    .steps a:hover { text-decoration: underline; }
+
+    .migrate-error {
+      display: none; background: rgba(248,81,73,0.12); border: 1px solid rgba(248,81,73,0.4);
+      border-radius: 6px; color: var(--red); font-size: 0.8rem; padding: 8px 12px;
+    }
+    .migrate-success {
+      display: none; background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3);
+      border-radius: 6px; color: var(--green); font-size: 0.8rem; padding: 8px 12px;
+    }
+
     footer { margin-top: 60px; color: var(--muted); font-size: 0.78rem; text-align: center; line-height: 2; }
     .coffee-link { color: #FFDD00; text-decoration: none; font-weight: 600; }
     .coffee-link:hover { text-decoration: underline; }
@@ -202,6 +260,42 @@
       <div class="stat"><div class="num" id="s-diff">—</div><div class="lbl">Total differences</div></div>
     </div>
     <div id="sections"></div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-label">Migrate Between Services</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="migrate-grid">
+
+    <!-- AniList → MAL -->
+    <div class="migrate-card">
+      <h3><span class="badge al" style="font-size:0.7rem">AniList</span> <span class="arrow">→</span> <span class="badge mal" style="font-size:0.7rem">MAL</span></h3>
+      <p class="migrate-note">Enter your AniList username to download a MAL-compatible XML file, then import it at <a href="https://myanimelist.net/import.php" target="_blank" rel="noopener">myanimelist.net/import.php</a>.</p>
+      <div class="field">
+        <label>AniList Username</label>
+        <input id="export-al-user" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
+      </div>
+      <div id="export-error" class="migrate-error"></div>
+      <div id="export-success" class="migrate-success"></div>
+      <button id="export-btn" class="migrate-btn" type="button">Download MAL XML</button>
+      <p class="migrate-note">⚠ Anime with no MAL equivalent will be skipped.</p>
+    </div>
+
+    <!-- MAL → AniList -->
+    <div class="migrate-card">
+      <h3><span class="badge mal" style="font-size:0.7rem">MAL</span> <span class="arrow">→</span> <span class="badge al" style="font-size:0.7rem">AniList</span></h3>
+      <p class="migrate-note">AniList natively accepts MAL's export format — no conversion needed. Follow these steps:</p>
+      <ol class="steps">
+        <li><span class="step-num">1</span><span>On MAL, go to <a href="https://myanimelist.net/panel.php?go=export" target="_blank" rel="noopener">Profile → Export</a> and download your anime list XML.</span></li>
+        <li><span class="step-num">2</span><span>On AniList, go to <a href="https://anilist.co/settings/import" target="_blank" rel="noopener">Settings → Import</a>.</span></li>
+        <li><span class="step-num">3</span><span>Select <strong>MyAnimeList</strong> as the source and upload the XML file.</span></li>
+        <li><span class="step-num">4</span><span>AniList will match entries and import your statuses, scores, and progress.</span></li>
+      </ol>
+    </div>
+
   </div>
 
   <footer>Data pulled live from AniList GraphQL &amp; MyAnimeList. Nothing is stored.<br>Made by AbsoluteXYZero &nbsp;·&nbsp; If you found this useful, <a href="https://buymeacoffee.com/absolutexyzero" target="_blank" rel="noopener" class="coffee-link">☕ buy me a coffee</a></footer>
@@ -401,6 +495,51 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Compare Lists';
+    }
+  });
+  document.getElementById('export-btn').addEventListener('click', async () => {
+    const raw      = document.getElementById('export-al-user').value;
+    const username = extractUsername(raw, 'al');
+    const errEl    = document.getElementById('export-error');
+    const okEl     = document.getElementById('export-success');
+    const btn      = document.getElementById('export-btn');
+
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!username) {
+      errEl.textContent = "Couldn't read an AniList username from that input.";
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Fetching list…';
+
+    try {
+      const res = await fetch(`/api/export/anilist-to-mal?username=${encodeURIComponent(username)}`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? 'Something went wrong.');
+      }
+      const skipped = parseInt(res.headers.get('X-Skipped-Count') ?? '0');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `mal-import-${username}.xml`;
+      a.click();
+      URL.revokeObjectURL(url);
+      okEl.textContent = skipped > 0
+        ? `Downloaded. ${skipped} entr${skipped === 1 ? 'y was' : 'ies were'} skipped (no MAL equivalent).`
+        : 'Downloaded successfully. Import it at myanimelist.net/import.php.';
+      okEl.style.display = 'block';
+    } catch (ex) {
+      errEl.textContent = ex.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Download MAL XML';
     }
   });
 </script>
