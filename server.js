@@ -26,6 +26,21 @@ const AL_TO_MAL_CODE = {
 
 const MAL_STATUS_LABEL = { 1: 'Watching', 2: 'Completed', 3: 'On Hold', 4: 'Dropped', 6: 'Plan to Watch' };
 
+function withTimeout(ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, clear: () => clearTimeout(timer) };
+}
+
+async function safeJson(res, source) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`${source} returned an unexpected response (possibly down or blocking the request)`);
+  }
+}
+
 async function fetchAniList(username) {
   const query = `
     query ($userName: String) {
@@ -40,24 +55,34 @@ async function fetchAniList(username) {
       }
     }
   `;
-  const res  = await fetch('https://graphql.anilist.co', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body:    JSON.stringify({ query, variables: { userName: username } }),
-  });
-  const json = await res.json();
+  const { signal, clear } = withTimeout(20000);
+  let res;
+  try {
+    res = await fetch('https://graphql.anilist.co', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify({ query, variables: { userName: username } }),
+      signal,
+    });
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? 'AniList request timed out' : `AniList unreachable: ${err.message}`);
+  } finally {
+    clear();
+  }
+
+  const json = await safeJson(res, 'AniList');
   if (json.errors) throw new Error(`AniList: ${json.errors[0]?.message ?? 'Unknown error'}`);
 
   const entries = [];
   for (const list of json.data.MediaListCollection.lists) {
     for (const e of list.entries) {
       entries.push({
-        anilistId:  e.media.id,
-        malId:      e.media.idMal,
-        title:      e.media.title.english || e.media.title.romaji,
-        totalEps:   e.media.episodes,
-        status:     e.status,
-        progress:   e.progress,
+        anilistId: e.media.id,
+        malId:     e.media.idMal,
+        title:     e.media.title.english || e.media.title.romaji,
+        totalEps:  e.media.episodes,
+        status:    e.status,
+        progress:  e.progress,
       });
     }
   }
@@ -67,15 +92,36 @@ async function fetchAniList(username) {
 async function fetchMAL(username) {
   const entries = [];
   let offset = 0;
+
   while (true) {
     const url = `https://myanimelist.net/animelist/${encodeURIComponent(username)}/load.json?status=7&offset=${offset}`;
-    const res  = await fetch(url, {
-      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-    });
-    if (res.status === 400 || res.status === 404) throw new Error(`MAL: user "${username}" not found or list is private`);
+    const { signal, clear } = withTimeout(20000);
+    let res;
+    try {
+      res = await fetch(url, {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        signal,
+      });
+    } catch (err) {
+      throw new Error(err.name === 'AbortError' ? 'MAL request timed out' : `MAL unreachable: ${err.message}`);
+    } finally {
+      clear();
+    }
+
+    if (res.status === 400 || res.status === 404) throw new Error(`MAL: user "${username}" not found`);
+    if (res.status === 403) throw new Error(`MAL: "${username}"'s list is private`);
     if (!res.ok) throw new Error(`MAL: server returned ${res.status}`);
-    const batch = await res.json();
-    if (!Array.isArray(batch) || batch.length === 0) break;
+
+    const batch = await safeJson(res, 'MAL');
+
+    if (!Array.isArray(batch)) throw new Error(`MAL: unexpected response format`);
+
+    // Empty array on first page = private list or genuinely empty
+    if (batch.length === 0 && offset === 0) {
+      throw new Error(`MAL: "${username}"'s list appears to be empty or private`);
+    }
+    if (batch.length === 0) break;
+
     for (const item of batch) {
       entries.push({
         malId:    item.anime_id,
@@ -85,17 +131,21 @@ async function fetchMAL(username) {
         totalEps: item.anime_num_episodes || null,
       });
     }
+
     if (batch.length < 300) break;
     offset += 300;
     await new Promise(r => setTimeout(r, 400));
   }
+
   return entries;
 }
 
 app.get('/api/compare', async (req, res) => {
   const alUser  = (req.query.al  ?? '').trim();
   const malUser = (req.query.mal ?? '').trim();
+
   if (!alUser || !malUser) return res.status(400).json({ error: 'Both usernames are required.' });
+  if (alUser.length > 100 || malUser.length > 100) return res.status(400).json({ error: 'Username is too long.' });
 
   try {
     const [alEntries, malEntries] = await Promise.all([fetchAniList(alUser), fetchMAL(malUser)]);
@@ -122,10 +172,10 @@ app.get('/api/compare', async (req, res) => {
 
       if (AL_TO_MAL_CODE[al.status] !== mal.status) {
         statusDiffs.push({
-          title:     al.title,
-          malId:     al.malId,
-          alStatus:  AL_STATUS_LABEL[al.status]  ?? al.status,
-          malStatus: MAL_STATUS_LABEL[mal.status] ?? String(mal.status),
+          title:       al.title,
+          malId:       al.malId,
+          alStatus:    AL_STATUS_LABEL[al.status]  ?? al.status,
+          malStatus:   MAL_STATUS_LABEL[mal.status] ?? String(mal.status),
           alProgress:  al.progress,
           malProgress: mal.progress,
           totalEps:    al.totalEps ?? mal.totalEps,
