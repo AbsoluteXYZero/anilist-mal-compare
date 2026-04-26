@@ -34,7 +34,7 @@
     }
 
     h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
-    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 36px; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
 
     .badges { display: flex; gap: 8px; margin-bottom: 8px; }
     .badge {
@@ -45,7 +45,24 @@
     .badge.mal { background: var(--mal); color: #fff; text-decoration: none; }
     .badge:hover { opacity: 0.85; }
 
-    form {
+    /* ── Mode tabs ── */
+    .mode-tabs {
+      display: flex; gap: 3px; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px;
+      width: 100%; max-width: 540px;
+    }
+    .mode-tab {
+      flex: 1; padding: 7px 4px; border-radius: 7px; border: none;
+      background: transparent; color: var(--muted);
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, color 0.15s; white-space: nowrap;
+    }
+    .mode-tab.active { background: var(--bg); color: var(--text); }
+    .mode-tab:hover:not(.active) { color: var(--text); }
+
+    /* ── Forms ── */
+    .form-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -57,29 +74,60 @@
     .field { display: flex; flex-direction: column; gap: 6px; }
     label { font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; display: inline-flex; align-items: center; gap: 6px; }
 
-    input {
+    input[type="text"] {
       background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-size: 0.95rem; padding: 10px 14px; outline: none; transition: border-color 0.15s;
+      width: 100%;
     }
-    input:focus { border-color: var(--accent); }
-    input::placeholder { color: var(--muted); }
+    input[type="text"]:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder { color: var(--muted); }
 
-    button {
+    .submit-btn {
       background: var(--accent); border: none; border-radius: 8px; color: #fff;
       cursor: pointer; font-size: 0.95rem; font-weight: 600; padding: 11px; margin-top: 4px; transition: opacity 0.15s;
     }
-    button:hover  { opacity: 0.85; }
-    button:active { opacity: 0.7; }
-    button:disabled { opacity: 0.4; cursor: default; }
+    .submit-btn:hover  { opacity: 0.85; }
+    .submit-btn:active { opacity: 0.7; }
+    .submit-btn:disabled { opacity: 0.4; cursor: default; }
 
     .form-note {
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: -4px;
+      font-size: 0.8rem; color: var(--muted); text-align: center; margin-top: -4px;
     }
     .form-note strong { color: var(--yellow); font-weight: 600; }
 
+    /* ── Multi-list rows ── */
+    .list-rows { display: flex; flex-direction: column; gap: 8px; }
+    .list-row  { display: flex; gap: 8px; align-items: center; }
+
+    .type-toggle {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted);
+      font-size: 0.78rem; font-weight: 700; padding: 0 10px;
+      cursor: pointer; white-space: nowrap; min-width: 46px;
+      height: 40px; display: inline-flex; align-items: center; justify-content: center;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .type-toggle[data-type="al"]  { background: var(--al);  color: #fff; border-color: var(--al); }
+    .type-toggle[data-type="mal"] { background: var(--mal); color: #fff; border-color: var(--mal); }
+
+    .remove-list-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); font-size: 1rem; padding: 0 10px;
+      cursor: pointer; flex-shrink: 0; height: 40px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .remove-list-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .add-list-btn {
+      background: none; border: 1px dashed var(--border); border-radius: 8px;
+      color: var(--muted); font-size: 0.85rem; font-weight: 600;
+      padding: 9px; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+    }
+    .add-list-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+    .add-list-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Spinner ── */
     .spinner {
       display: none; width: 20px; height: 20px;
       border: 3px solid rgba(255,255,255,0.2); border-top-color: #fff;
@@ -87,18 +135,20 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Error ── */
     #error {
       display: none; background: rgba(248,81,73,0.12); border: 1px solid rgba(248,81,73,0.4);
       border-radius: 8px; color: var(--red); font-size: 0.88rem; padding: 10px 14px;
       margin-top: 8px; max-width: 540px; width: 100%;
     }
 
-    #results { width: 100%; max-width: 760px; margin-top: 36px; display: none; }
+    /* ── Results ── */
+    #results { width: 100%; max-width: 900px; margin-top: 36px; display: none; }
 
     .summary { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
     .stat {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 120px; text-align: center;
+      border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 110px; text-align: center;
     }
     .stat .num { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
     .stat .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
@@ -123,7 +173,7 @@
     .section-body { display: none; }
     .section.open .section-body { display: block; }
 
-    /* Table layout for entries */
+    /* ── Standard entry table ── */
     .entry-table { width: 100%; border-collapse: collapse; }
     .entry-table thead th {
       font-size: 0.72rem; font-weight: 600; color: var(--muted);
@@ -146,33 +196,61 @@
     }
     .tag.Watching      { background: rgba(63,185,80,0.15);   color: var(--green); }
     .tag.Completed     { background: rgba(88,166,255,0.15);  color: var(--accent); }
-    .tag\.On\ Hold,
     .tag.on-hold       { background: rgba(210,153,34,0.15);  color: var(--yellow); }
     .tag.Dropped       { background: rgba(248,81,73,0.15);   color: var(--red); }
-    .tag\.Plan,
     .tag.planning      { background: rgba(139,148,158,0.15); color: var(--muted); }
     .tag.Rewatching    { background: rgba(63,185,80,0.1);    color: var(--green); }
 
-    .ep-diff {
-      font-size: 0.82rem; white-space: nowrap;
-    }
-    .ep-al  { color: var(--al); }
-    .ep-mal { color: #8ab4f8; }
-    .ep-sep { color: var(--border); margin: 0 4px; }
+    .ep-diff { font-size: 0.82rem; white-space: nowrap; }
+    .ep-1    { color: var(--al); }
+    .ep-2    { color: #8ab4f8; }
+    .ep-sep  { color: var(--border); margin: 0 4px; }
 
-    .status-change {
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    }
+    .status-change { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .arrow { color: var(--muted); font-size: 0.75rem; }
 
     .empty-note { padding: 14px 18px; font-size: 0.85rem; color: var(--green); }
-    .all-clear { text-align: center; padding: 40px 20px; color: var(--green); font-size: 1.1rem; font-weight: 600; }
+    .all-clear  { text-align: center; padding: 40px 20px; color: var(--green); font-size: 1.1rem; font-weight: 600; }
 
+    /* ── Multi-list matrix table ── */
+    .multi-filter-bar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .multi-filter-bar label {
+      font-size: 0.82rem; color: var(--muted); text-transform: none; letter-spacing: 0;
+      font-weight: 400; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    }
+    .multi-filter-bar input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent); }
+    .multi-diff-count { font-size: 0.82rem; color: var(--muted); margin-left: auto; }
+
+    .multi-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    .multi-table  { width: 100%; border-collapse: collapse; min-width: 500px; }
+    .multi-table thead th {
+      background: var(--surface);
+      font-size: 0.72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 8px 14px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .multi-table thead th.user-col { text-align: center; min-width: 130px; }
+    .multi-table tbody tr { border-bottom: 1px solid rgba(48,54,61,0.5); background: var(--surface); }
+    .multi-table tbody tr:last-child { border-bottom: none; }
+    .multi-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+    .multi-table tbody tr.is-diff { border-left: 2px solid rgba(88,166,255,0.4); }
+    .multi-table td { padding: 8px 14px; font-size: 0.85rem; vertical-align: middle; }
+    .multi-table td.user-col { text-align: center; }
+
+    .multi-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .multi-cell .ep-info { font-size: 0.75rem; color: var(--muted); }
+    .multi-absent { color: var(--border); font-size: 1rem; }
+
+    /* ── Divider + migration ── */
     .divider {
       width: 100%; max-width: 540px; margin: 48px 0 32px;
       display: flex; align-items: center; gap: 12px;
     }
-    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-line  { flex: 1; height: 1px; background: var(--border); }
     .divider-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
 
     .migrate-grid {
@@ -187,7 +265,6 @@
     }
     .migrate-card h3 { font-size: 0.95rem; font-weight: 700; }
     .migrate-card h3 .arrow { color: var(--muted); font-weight: 400; margin: 0 4px; }
-
     .migrate-card .field { gap: 6px; }
 
     .migrate-btn {
@@ -199,16 +276,12 @@
     .migrate-btn:active { opacity: 0.7; }
     .migrate-btn:disabled { opacity: 0.4; cursor: default; }
 
-    .migrate-note {
-      font-size: 0.78rem; color: var(--muted); line-height: 1.5;
-    }
+    .migrate-note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
     .migrate-note a { color: var(--accent); text-decoration: none; }
     .migrate-note a:hover { text-decoration: underline; }
 
     .steps { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .steps li {
-      font-size: 0.82rem; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5;
-    }
+    .steps li { font-size: 0.82rem; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
     .step-num {
       background: var(--border); color: var(--text); border-radius: 50%;
       width: 18px; height: 18px; font-size: 0.68rem; font-weight: 700;
@@ -235,9 +308,18 @@
 
   <img src="/favicon.png" alt="Hannya" style="width:64px;height:64px;margin-bottom:4px">
   <h1>Anime List Comparison</h1>
-  <p class="subtitle">Find what's out of sync between your AniList and MAL.</p>
+  <p class="subtitle">Find what's out of sync between your anime lists.</p>
 
-  <form id="form">
+  <!-- Mode tabs -->
+  <div class="mode-tabs" id="mode-tabs">
+    <button class="mode-tab active" data-mode="al-mal">AniList ↔ MAL</button>
+    <button class="mode-tab" data-mode="al-al">AniList ↔ AniList</button>
+    <button class="mode-tab" data-mode="mal-mal">MAL ↔ MAL</button>
+    <button class="mode-tab" data-mode="multi">Multi-list</button>
+  </div>
+
+  <!-- AniList vs MAL -->
+  <form id="form-al-mal" class="form-card">
     <div class="field">
       <label><a class="badge al" href="https://anilist.co" target="_blank" rel="noopener">AniList</a> Username</label>
       <input id="alUser" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
@@ -246,19 +328,52 @@
       <label><a class="badge mal" href="https://myanimelist.net" target="_blank" rel="noopener">MyAnimeList</a> Username</label>
       <input id="malUser" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
     </div>
-    <button id="btn" type="submit">Compare Lists</button>
-    <p class="form-note">⚠ Both lists must be set to <strong>public</strong> on AniList and MAL for this to work.</p>
+    <button id="btn-al-mal" class="submit-btn" type="submit">Compare Lists</button>
+    <p class="form-note">⚠ Both lists must be set to <strong>public</strong> on AniList and MAL.</p>
   </form>
 
-  <div id="error"></div>
-  <div id="results">
-    <div class="summary">
-      <div class="stat"><div class="num" id="s-al">—</div><div class="lbl">AniList titles</div></div>
-      <div class="stat"><div class="num" id="s-mal">—</div><div class="lbl">MAL titles</div></div>
-      <div class="stat"><div class="num" id="s-diff">—</div><div class="lbl">Total differences</div></div>
+  <!-- AniList vs AniList -->
+  <form id="form-al-al" class="form-card" style="display:none">
+    <div class="field">
+      <label><span class="badge al">AniList</span> Username 1</label>
+      <input id="al1User" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
     </div>
-    <div id="sections"></div>
+    <div class="field">
+      <label><span class="badge al">AniList</span> Username 2</label>
+      <input id="al2User" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="btn-al-al" class="submit-btn" type="submit">Compare Lists</button>
+    <p class="form-note">⚠ Both AniList profiles must be set to <strong>public</strong>.</p>
+  </form>
+
+  <!-- MAL vs MAL -->
+  <form id="form-mal-mal" class="form-card" style="display:none">
+    <div class="field">
+      <label><span class="badge mal">MAL</span> Username 1</label>
+      <input id="mal1User" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label><span class="badge mal">MAL</span> Username 2</label>
+      <input id="mal2User" type="text" placeholder="e.g. username" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="btn-mal-mal" class="submit-btn" type="submit">Compare Lists</button>
+    <p class="form-note">⚠ Both MAL profiles must be set to <strong>public</strong>.</p>
+  </form>
+
+  <!-- Multi-list -->
+  <div id="form-multi" class="form-card" style="display:none">
+    <div class="field" style="gap:4px">
+      <label>Lists <span style="color:var(--border);font-weight:400;text-transform:none;letter-spacing:0">(2–6)</span></label>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:4px">Click the type badge on each row to toggle between AniList and MAL.</p>
+    </div>
+    <div id="multi-list-rows" class="list-rows"></div>
+    <button id="multi-add-btn" class="add-list-btn" type="button">+ Add List</button>
+    <button id="btn-multi" class="submit-btn" type="button">Compare Lists</button>
+    <p class="form-note">⚠ All listed profiles must be <strong>public</strong>. Matched on MAL ID — AniList entries with no MAL equivalent are listed separately.</p>
   </div>
+
+  <div id="error"></div>
+  <div id="results"></div>
 
   <div class="divider">
     <div class="divider-line"></div>
@@ -299,9 +414,10 @@
   <footer>Data pulled live from AniList GraphQL &amp; MyAnimeList. Nothing is stored.<br>Made by AbsoluteXYZero &nbsp;·&nbsp; If you found this useful, <a href="https://buymeacoffee.com/absolutexyzero" target="_blank" rel="noopener" class="coffee-link">☕ buy me a coffee</a><br><a href="https://www.flaticon.com/free-icons/hannya" title="hannya icons" target="_blank" rel="noopener" style="color:var(--border);font-size:0.72rem">Hannya icon by Flaticon</a></footer>
 
 <script>
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
   function extractUsername(input, type) {
     const s = input.trim();
-    // If it doesn't look like a URL, treat it as a plain username
     if (!s.includes('/') && !s.includes('.')) return s;
     try {
       const url = new URL(s.startsWith('http') ? s : 'https://' + s);
@@ -313,7 +429,6 @@
         if (m) return m[1];
       }
     } catch (_) {}
-    // URL didn't match expected pattern — return empty to trigger validation error
     return '';
   }
 
@@ -325,6 +440,12 @@
     return malId
       ? `<a href="https://myanimelist.net/anime/${malId}" target="_blank" rel="noopener">${esc(title)}</a>`
       : esc(title);
+  }
+
+  function alLink(title, anilistId, malId) {
+    if (anilistId)
+      return `<a href="https://anilist.co/anime/${anilistId}" target="_blank" rel="noopener">${esc(title)}</a>`;
+    return malLink(title, malId);
   }
 
   function tagHtml(label) {
@@ -364,137 +485,391 @@
     return `<table class="entry-table"><thead><tr>${thead}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
   }
 
-  function render(data) {
-    document.getElementById('s-al').textContent  = data.alTotal;
-    document.getElementById('s-mal').textContent = data.malTotal;
-    const total = data.onlyAL.length + data.onlyMAL.length + data.statusDiffs.length + data.epDiffs.length;
-    document.getElementById('s-diff').textContent = total;
-
-    let html = '';
-
-    if (total === 0 && !data.noMalId.length) {
-      html = `<div class="all-clear">✓ Lists are fully in sync!</div>`;
-    } else {
-
-      // Only on AniList
-      html += makeSection('only-al', 'On AniList — missing from MAL', data.onlyAL.length,
-        tableWrap(
-          `<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
-          data.onlyAL.map(e => `
-            <tr>
-              <td class="title-cell">${malLink(e.title, e.malId)}</td>
-              <td>${tagHtml(e.status)}</td>
-              <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
-            </tr>`)
-        )
-      );
-
-      // Only on MAL
-      html += makeSection('only-mal', 'On MAL — missing from AniList', data.onlyMAL.length,
-        tableWrap(
-          `<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
-          data.onlyMAL.map(e => `
-            <tr>
-              <td class="title-cell">${malLink(e.title, e.malId)}</td>
-              <td>${tagHtml(e.status)}</td>
-              <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
-            </tr>`)
-        )
-      );
-
-      // Status mismatches
-      html += makeSection('status', 'Status mismatches', data.statusDiffs.length,
-        tableWrap(
-          `<th>Title</th><th>AniList</th><th>MAL</th><th class="right">AL eps</th><th class="right">MAL eps</th>`,
-          data.statusDiffs.map(e => `
-            <tr>
-              <td class="title-cell">${malLink(e.title, e.malId)}</td>
-              <td>${tagHtml(e.alStatus)}</td>
-              <td>${tagHtml(e.malStatus)}</td>
-              <td class="right ep-diff ep-al">${e.alProgress}</td>
-              <td class="right ep-diff ep-mal">${e.malProgress}</td>
-            </tr>`)
-        )
-      );
-
-      // Episode count mismatches
-      html += makeSection('eps', 'Episode count mismatches', data.epDiffs.length,
-        tableWrap(
-          `<th>Title</th><th>Status</th><th class="right">AniList</th><th class="right">MAL</th><th class="right">Total eps</th>`,
-          data.epDiffs.map(e => `
-            <tr>
-              <td class="title-cell">${malLink(e.title, e.malId)}</td>
-              <td>${tagHtml(e.status)}</td>
-              <td class="right ep-diff ep-al">${e.alProgress}</td>
-              <td class="right ep-diff ep-mal">${e.malProgress}</td>
-              <td class="right ep-diff" style="color:var(--muted)">${e.totalEps ?? '?'}</td>
-            </tr>`)
-        )
-      );
-
-      // AniList-only (no MAL ID)
-      if (data.noMalId.length) {
-        html += makeSection('nomatch', 'AniList-only (no MAL equivalent)', data.noMalId.length,
-          tableWrap(
-            `<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
-            data.noMalId.map(e => `
-              <tr>
-                <td class="title-cell">${esc(e.title)}</td>
-                <td>${tagHtml(e.status)}</td>
-                <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
-              </tr>`)
-          )
-        );
-      }
-    }
-
-    document.getElementById('sections').innerHTML = html;
-
-    // Auto-open sections with results (eps stays collapsed by default)
-    for (const id of ['only-al','only-mal','status','nomatch']) {
-      const el = document.getElementById('sec-' + id);
-      if (!el) continue;
-      if (parseInt(el.querySelector('.count').textContent) > 0) el.classList.add('open');
-    }
-
-    document.getElementById('results').style.display = 'block';
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
   function showError(msg) {
     const err = document.getElementById('error');
     err.textContent = msg;
     err.style.display = 'block';
   }
 
-  document.getElementById('form').addEventListener('submit', async e => {
+  function clearUI() {
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('results').innerHTML = '';
+  }
+
+  function setSpinner(btn, on, label) {
+    if (on) {
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner" style="display:block"></div>';
+    } else {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  }
+
+  // ── Mode switching ────────────────────────────────────────────────────────
+
+  const FORMS = { 'al-mal': 'form-al-mal', 'al-al': 'form-al-al', 'mal-mal': 'form-mal-mal', 'multi': 'form-multi' };
+  let activeMode = 'al-mal';
+
+  document.getElementById('mode-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.mode-tab');
+    if (!tab) return;
+    const mode = tab.dataset.mode;
+    if (mode === activeMode) return;
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.getElementById(FORMS[activeMode]).style.display = 'none';
+    document.getElementById(FORMS[mode]).style.display = 'flex';
+    activeMode = mode;
+    clearUI();
+  });
+
+  // ── Multi-list form ───────────────────────────────────────────────────────
+
+  function addListRow(type, username) {
+    type = type || 'al';
+    const container = document.getElementById('multi-list-rows');
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `
+      <button type="button" class="type-toggle" data-type="${type}">${type.toUpperCase()}</button>
+      <input type="text" class="list-username" placeholder="e.g. username" value="${esc(username || '')}" autocomplete="off" spellcheck="false">
+      <button type="button" class="remove-list-btn" title="Remove">×</button>
+    `;
+    row.querySelector('.type-toggle').addEventListener('click', function () {
+      const next = this.dataset.type === 'al' ? 'mal' : 'al';
+      this.dataset.type = next;
+      this.textContent = next.toUpperCase();
+    });
+    row.querySelector('.remove-list-btn').addEventListener('click', () => {
+      row.remove();
+      syncMultiUI();
+    });
+    container.appendChild(row);
+    syncMultiUI();
+  }
+
+  function syncMultiUI() {
+    const rows = document.querySelectorAll('#multi-list-rows .list-row');
+    rows.forEach(r => {
+      r.querySelector('.remove-list-btn').style.visibility = rows.length <= 2 ? 'hidden' : 'visible';
+    });
+    document.getElementById('multi-add-btn').disabled = rows.length >= 6;
+  }
+
+  // Initialise with 2 rows
+  addListRow('al'); addListRow('al');
+  document.getElementById('multi-add-btn').addEventListener('click', () => addListRow('al'));
+
+  // ── AL vs MAL ─────────────────────────────────────────────────────────────
+
+  function renderAlMal(data, u1, u2) {
+    const total = data.onlyAL.length + data.onlyMAL.length + data.statusDiffs.length + data.epDiffs.length;
+    let html = `<div class="summary">
+      <div class="stat"><div class="num">${data.alTotal}</div><div class="lbl">${esc(u1)} (AL)</div></div>
+      <div class="stat"><div class="num">${data.malTotal}</div><div class="lbl">${esc(u2)} (MAL)</div></div>
+      <div class="stat"><div class="num">${total}</div><div class="lbl">Differences</div></div>
+    </div>`;
+
+    if (total === 0 && !data.noMalId.length) {
+      html += `<div class="all-clear">✓ Lists are fully in sync!</div>`;
+    } else {
+      html += makeSection('only-al', `On AniList — missing from MAL`, data.onlyAL.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
+          data.onlyAL.map(e => `<tr>
+            <td class="title-cell">${malLink(e.title, e.malId)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+          </tr>`)));
+
+      html += makeSection('only-mal', `On MAL — missing from AniList`, data.onlyMAL.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
+          data.onlyMAL.map(e => `<tr>
+            <td class="title-cell">${malLink(e.title, e.malId)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+          </tr>`)));
+
+      html += makeSection('status', 'Status mismatches', data.statusDiffs.length,
+        tableWrap(`<th>Title</th><th>AniList</th><th>MAL</th><th class="right">AL eps</th><th class="right">MAL eps</th>`,
+          data.statusDiffs.map(e => `<tr>
+            <td class="title-cell">${malLink(e.title, e.malId)}</td>
+            <td>${tagHtml(e.alStatus)}</td>
+            <td>${tagHtml(e.malStatus)}</td>
+            <td class="right ep-diff ep-1">${e.alProgress}</td>
+            <td class="right ep-diff ep-2">${e.malProgress}</td>
+          </tr>`)));
+
+      html += makeSection('eps', 'Episode count mismatches', data.epDiffs.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">AniList</th><th class="right">MAL</th><th class="right">Total eps</th>`,
+          data.epDiffs.map(e => `<tr>
+            <td class="title-cell">${malLink(e.title, e.malId)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff ep-1">${e.alProgress}</td>
+            <td class="right ep-diff ep-2">${e.malProgress}</td>
+            <td class="right ep-diff" style="color:var(--muted)">${e.totalEps ?? '?'}</td>
+          </tr>`)));
+
+      if (data.noMalId.length) {
+        html += makeSection('nomatch', 'AniList-only (no MAL equivalent)', data.noMalId.length,
+          tableWrap(`<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
+            data.noMalId.map(e => `<tr>
+              <td class="title-cell">${esc(e.title)}</td>
+              <td>${tagHtml(e.status)}</td>
+              <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+            </tr>`)));
+      }
+    }
+
+    const el = document.getElementById('results');
+    el.innerHTML = html;
+    el.style.display = 'block';
+    for (const id of ['only-al','only-mal','status','nomatch']) {
+      const sec = document.getElementById('sec-' + id);
+      if (sec && parseInt(sec.querySelector('.count').textContent) > 0) sec.classList.add('open');
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('form-al-mal').addEventListener('submit', async e => {
     e.preventDefault();
-    const al  = extractUsername(document.getElementById('alUser').value, 'al');
+    const al  = extractUsername(document.getElementById('alUser').value,  'al');
     const mal = extractUsername(document.getElementById('malUser').value, 'mal');
     if (!al && !mal) { showError('Please enter both usernames.'); return; }
-    if (!al) { showError("Couldn't read an AniList username from that input. Try pasting just the username."); return; }
-    if (!mal) { showError("Couldn't read a MAL username from that input. Try pasting just the username."); return; }
-
-    const btn = document.getElementById('btn');
-    const err = document.getElementById('error');
-
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner" style="display:block"></div>';
-    err.style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-
+    if (!al)  { showError("Couldn't read an AniList username from that input."); return; }
+    if (!mal) { showError("Couldn't read a MAL username from that input."); return; }
+    const btn = document.getElementById('btn-al-mal');
+    clearUI();
+    setSpinner(btn, true);
     try {
       const res  = await fetch(`/api/compare?al=${encodeURIComponent(al)}&mal=${encodeURIComponent(mal)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Something went wrong.');
-      render(data);
-    } catch (ex) {
-      showError(ex.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Compare Lists';
-    }
+      renderAlMal(data, al, mal);
+    } catch (ex) { showError(ex.message); }
+    finally { setSpinner(btn, false, 'Compare Lists'); }
   });
+
+  // ── AL vs AL ──────────────────────────────────────────────────────────────
+
+  function renderTwoWay(data, u1, u2, mode) {
+    const isAL = mode === 'al-al';
+    const total = data.only1.length + data.only2.length + data.statusDiffs.length + data.epDiffs.length;
+    const svc1 = isAL ? 'AniList' : 'MAL';
+    const svc2 = isAL ? 'AniList' : 'MAL';
+    const linkFn = isAL
+      ? (e => alLink(e.title, e.anilistId, e.malId))
+      : (e => malLink(e.title, e.malId));
+
+    let html = `<div class="summary">
+      <div class="stat"><div class="num">${data.t1}</div><div class="lbl">${esc(u1)} (${svc1})</div></div>
+      <div class="stat"><div class="num">${data.t2}</div><div class="lbl">${esc(u2)} (${svc2})</div></div>
+      <div class="stat"><div class="num">${total}</div><div class="lbl">Differences</div></div>
+    </div>`;
+
+    if (total === 0) {
+      html += `<div class="all-clear">✓ Lists are fully in sync!</div>`;
+    } else {
+      html += makeSection('only-1', `On ${esc(u1)}'s list — missing from ${esc(u2)}`, data.only1.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
+          data.only1.map(e => `<tr>
+            <td class="title-cell">${linkFn(e)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+          </tr>`)));
+
+      html += makeSection('only-2', `On ${esc(u2)}'s list — missing from ${esc(u1)}`, data.only2.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">Episodes watched</th>`,
+          data.only2.map(e => `<tr>
+            <td class="title-cell">${linkFn(e)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+          </tr>`)));
+
+      html += makeSection('status', 'Status mismatches', data.statusDiffs.length,
+        tableWrap(`<th>Title</th><th>${esc(u1)}</th><th>${esc(u2)}</th><th class="right">${esc(u1)} eps</th><th class="right">${esc(u2)} eps</th>`,
+          data.statusDiffs.map(e => `<tr>
+            <td class="title-cell">${linkFn(e)}</td>
+            <td>${tagHtml(e.s1)}</td>
+            <td>${tagHtml(e.s2)}</td>
+            <td class="right ep-diff ep-1">${e.p1}</td>
+            <td class="right ep-diff ep-2">${e.p2}</td>
+          </tr>`)));
+
+      html += makeSection('eps', 'Episode count mismatches', data.epDiffs.length,
+        tableWrap(`<th>Title</th><th>Status</th><th class="right">${esc(u1)}</th><th class="right">${esc(u2)}</th><th class="right">Total eps</th>`,
+          data.epDiffs.map(e => `<tr>
+            <td class="title-cell">${linkFn(e)}</td>
+            <td>${tagHtml(e.status)}</td>
+            <td class="right ep-diff ep-1">${e.p1}</td>
+            <td class="right ep-diff ep-2">${e.p2}</td>
+            <td class="right ep-diff" style="color:var(--muted)">${e.totalEps ?? '?'}</td>
+          </tr>`)));
+    }
+
+    const el = document.getElementById('results');
+    el.innerHTML = html;
+    el.style.display = 'block';
+    for (const id of ['only-1','only-2','status']) {
+      const sec = document.getElementById('sec-' + id);
+      if (sec && parseInt(sec.querySelector('.count').textContent) > 0) sec.classList.add('open');
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('form-al-al').addEventListener('submit', async e => {
+    e.preventDefault();
+    const al1 = extractUsername(document.getElementById('al1User').value, 'al');
+    const al2 = extractUsername(document.getElementById('al2User').value, 'al');
+    if (!al1 || !al2) { showError('Please enter both AniList usernames.'); return; }
+    const btn = document.getElementById('btn-al-al');
+    clearUI();
+    setSpinner(btn, true);
+    try {
+      const res  = await fetch(`/api/compare/al-al?al1=${encodeURIComponent(al1)}&al2=${encodeURIComponent(al2)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Something went wrong.');
+      renderTwoWay(data, al1, al2, 'al-al');
+    } catch (ex) { showError(ex.message); }
+    finally { setSpinner(btn, false, 'Compare Lists'); }
+  });
+
+  // ── MAL vs MAL ────────────────────────────────────────────────────────────
+
+  document.getElementById('form-mal-mal').addEventListener('submit', async e => {
+    e.preventDefault();
+    const mal1 = extractUsername(document.getElementById('mal1User').value, 'mal');
+    const mal2 = extractUsername(document.getElementById('mal2User').value, 'mal');
+    if (!mal1 || !mal2) { showError('Please enter both MAL usernames.'); return; }
+    const btn = document.getElementById('btn-mal-mal');
+    clearUI();
+    setSpinner(btn, true);
+    try {
+      const res  = await fetch(`/api/compare/mal-mal?mal1=${encodeURIComponent(mal1)}&mal2=${encodeURIComponent(mal2)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Something went wrong.');
+      renderTwoWay(data, mal1, mal2, 'mal-mal');
+    } catch (ex) { showError(ex.message); }
+    finally { setSpinner(btn, false, 'Compare Lists'); }
+  });
+
+  // ── Multi-list ────────────────────────────────────────────────────────────
+
+  function renderMulti(data) {
+    const { users, totals, rows, noMalId } = data;
+    const diffRows  = rows.filter(r => r.isDiff);
+    const diffCount = diffRows.length;
+
+    // Summary stats
+    let statsHtml = users.map((u, i) => {
+      const isAL  = u.type === 'al';
+      const style = isAL
+        ? 'border-top:2px solid var(--al);background:rgba(2,169,255,0.06);padding-top:12px'
+        : 'border-top:2px solid var(--mal);background:rgba(46,81,162,0.18);padding-top:12px';
+      return `<div class="stat" style="${style}"><div class="num">${totals[i]}</div><div class="lbl">${esc(u.username)} <span class="badge ${u.type}">${u.type.toUpperCase()}</span></div></div>`;
+    }).join('');
+    statsHtml += `<div class="stat"><div class="num">${diffCount}</div><div class="lbl">Entries with diffs</div></div>`;
+
+    // User column headers
+    const userThs = users.map(u =>
+      `<th class="user-col">${esc(u.username)}<br><span style="color:var(--${u.type === 'al' ? 'al' : 'accent'});font-weight:400">${u.type.toUpperCase()}</span></th>`
+    ).join('');
+
+    function buildRows(subset) {
+      return subset.map(row => {
+        const titleHtml = alLink(row.title, row.anilistId, row.malId);
+        const cells = row.entries.map(entry => {
+          if (!entry) return `<td class="user-col"><span class="multi-absent">—</span></td>`;
+          return `<td class="user-col"><div class="multi-cell">${tagHtml(entry.status)}<span class="ep-info">${epStr(entry.progress, entry.totalEps)}</span></div></td>`;
+        }).join('');
+        return `<tr class="${row.isDiff ? 'is-diff' : ''}"><td class="title-cell">${titleHtml}</td>${cells}</tr>`;
+      }).join('');
+    }
+
+    const tableHtml = (subset) => `
+      <div class="multi-scroll">
+        <table class="multi-table">
+          <thead><tr><th>Title</th>${userThs}</tr></thead>
+          <tbody id="multi-tbody">${buildRows(subset)}</tbody>
+        </table>
+      </div>`;
+
+    let html = `<div class="summary">${statsHtml}</div>`;
+
+    html += `<div class="multi-filter-bar">
+      <label><input type="checkbox" id="multi-diffs-only" checked> Differences only</label>
+      <span class="multi-diff-count" id="multi-row-count">${diffCount} of ${rows.length} entries shown</span>
+    </div>`;
+
+    html += `<div id="multi-table-wrap">${tableHtml(diffRows)}</div>`;
+
+    if (noMalId.length) {
+      const grouped = {};
+      for (const e of noMalId) {
+        const key = users[e.userIdx].username;
+        (grouped[key] = grouped[key] || []).push(e);
+      }
+      const noMalRows = Object.entries(grouped).flatMap(([uname, entries]) =>
+        entries.map(e => `<tr>
+          <td class="title-cell">${esc(e.title)}</td>
+          <td>${esc(uname)}</td>
+          <td>${tagHtml(e.status)}</td>
+          <td class="right ep-diff">${epStr(e.progress, e.totalEps)}</td>
+        </tr>`)
+      );
+      html += makeSection('nomatch', 'AniList-only (no MAL equivalent)', noMalId.length,
+        tableWrap(`<th>Title</th><th>User</th><th>Status</th><th class="right">Episodes watched</th>`, noMalRows));
+    }
+
+    const el = document.getElementById('results');
+    el.innerHTML = html;
+    el.style.display = 'block';
+
+    // Wire up filter toggle
+    document.getElementById('multi-diffs-only').addEventListener('change', function () {
+      const subset   = this.checked ? diffRows : rows;
+      const countEl  = document.getElementById('multi-row-count');
+      const wrapEl   = document.getElementById('multi-table-wrap');
+      countEl.textContent = `${subset.length} of ${rows.length} entries shown`;
+      wrapEl.innerHTML = tableHtml(subset);
+    });
+
+    if (noMalId.length) {
+      const sec = document.getElementById('sec-nomatch');
+      if (sec) sec.classList.add('open');
+    }
+
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('btn-multi').addEventListener('click', async () => {
+    const listEls = document.querySelectorAll('#multi-list-rows .list-row');
+    const lists   = Array.from(listEls).map(row => ({
+      type:     row.querySelector('.type-toggle').dataset.type,
+      username: extractUsername(row.querySelector('.list-username').value,
+                                row.querySelector('.type-toggle').dataset.type),
+    }));
+
+    const blank = lists.findIndex(l => !l.username);
+    if (blank !== -1) { showError(`Username ${blank + 1} is empty or invalid.`); return; }
+
+    const params = new URLSearchParams();
+    for (const l of lists) params.append('list', `${l.type}:${l.username}`);
+
+    const btn = document.getElementById('btn-multi');
+    clearUI();
+    setSpinner(btn, true);
+    try {
+      const res  = await fetch(`/api/compare/multi?${params}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Something went wrong.');
+      renderMulti(data);
+    } catch (ex) { showError(ex.message); }
+    finally { setSpinner(btn, false, 'Compare Lists'); }
+  });
+
+  // ── Export ────────────────────────────────────────────────────────────────
+
   document.getElementById('export-btn').addEventListener('click', async () => {
     const raw      = document.getElementById('export-al-user').value;
     const username = extractUsername(raw, 'al');
@@ -511,7 +886,7 @@
       return;
     }
 
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Fetching list…';
 
     try {
@@ -536,7 +911,7 @@
       errEl.textContent = ex.message;
       errEl.style.display = 'block';
     } finally {
-      btn.disabled = false;
+      btn.disabled    = false;
       btn.textContent = 'Download MAL XML';
     }
   });
