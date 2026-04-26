@@ -51,9 +51,11 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; padding: 4px;
       width: 100%; max-width: 540px;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .mode-tabs::-webkit-scrollbar { display: none; }
     .mode-tab {
-      flex: 1; padding: 7px 4px; border-radius: 7px; border: none;
+      flex: 1; min-width: max-content; padding: 7px 10px; border-radius: 7px; border: none;
       background: transparent; color: var(--muted);
       font-size: 0.78rem; font-weight: 600; cursor: pointer;
       transition: background 0.15s, color 0.15s; white-space: nowrap;
