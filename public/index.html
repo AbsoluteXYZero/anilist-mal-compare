@@ -46,12 +46,17 @@
     .badge:hover { opacity: 0.85; }
 
     /* ── Mode tabs ── */
+    .mode-tabs-wrapper {
+      display: flex; align-items: center; gap: 4px;
+      width: 100%; max-width: 540px; margin-bottom: 16px;
+    }
     .mode-tabs {
-      display: flex; gap: 3px; margin-bottom: 16px;
+      display: flex; gap: 3px;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; padding: 4px;
-      width: 100%; max-width: 540px;
+      flex: 1; min-width: 0;
       overflow-x: auto; scrollbar-width: none;
+      scroll-behavior: smooth;
     }
     .mode-tabs::-webkit-scrollbar { display: none; }
     .mode-tab {
@@ -62,6 +67,16 @@
     }
     .mode-tab.active { background: var(--bg); color: var(--text); }
     .mode-tab:hover:not(.active) { color: var(--text); }
+    .tab-scroll-btn {
+      flex-shrink: 0; width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: 1rem;
+      cursor: pointer; transition: opacity 0.2s, color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .tab-scroll-btn:hover { color: var(--text); border-color: var(--accent); }
+    .tab-scroll-btn.hidden { opacity: 0; pointer-events: none; }
 
     /* ── Forms ── */
     .form-card {
