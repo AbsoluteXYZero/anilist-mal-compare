@@ -46,19 +46,29 @@
     .badge:hover { opacity: 0.85; }
 
     /* ── Mode tabs ── */
-    .mode-tabs-wrapper {
-      display: flex; align-items: center; gap: 4px;
-      width: 100%; max-width: 540px; margin-bottom: 16px;
+    .mode-tabs-wrap {
+      position: relative; width: 100%; max-width: 540px; margin-bottom: 16px;
     }
     .mode-tabs {
       display: flex; gap: 3px;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; padding: 4px;
-      flex: 1; min-width: 0;
       overflow-x: auto; scrollbar-width: none;
-      scroll-behavior: smooth;
     }
     .mode-tabs::-webkit-scrollbar { display: none; }
+    .mode-tabs-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.9rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+      z-index: 1;
+    }
+    .mode-tabs-arrow:hover:not(:disabled) { color: var(--text); border-color: var(--accent); }
+    .mode-tabs-arrow:disabled { opacity: 0.3; cursor: default; }
+    .mode-tabs-arrow.left { left: -14px; }
+    .mode-tabs-arrow.right { right: -14px; }
     .mode-tab {
       flex: 1; min-width: max-content; padding: 7px 10px; border-radius: 7px; border: none;
       background: transparent; color: var(--muted);
@@ -67,16 +77,6 @@
     }
     .mode-tab.active { background: var(--bg); color: var(--text); }
     .mode-tab:hover:not(.active) { color: var(--text); }
-    .tab-scroll-btn {
-      flex-shrink: 0; width: 30px; height: 30px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; color: var(--muted); font-size: 1rem;
-      cursor: pointer; transition: opacity 0.2s, color 0.15s, border-color 0.15s;
-      user-select: none;
-    }
-    .tab-scroll-btn:hover { color: var(--text); border-color: var(--accent); }
-    .tab-scroll-btn.hidden { opacity: 0; pointer-events: none; }
 
     /* ── Forms ── */
     .form-card {
@@ -328,11 +328,15 @@
   <p class="subtitle">Find what's out of sync between your anime lists.</p>
 
   <!-- Mode tabs -->
-  <div class="mode-tabs" id="mode-tabs">
-    <button class="mode-tab active" data-mode="al-mal">AniList ↔ MAL</button>
-    <button class="mode-tab" data-mode="al-al">AniList ↔ AniList</button>
-    <button class="mode-tab" data-mode="mal-mal">MAL ↔ MAL</button>
-    <button class="mode-tab" data-mode="multi">Multi-list</button>
+  <div class="mode-tabs-wrap" id="mode-tabs-wrap">
+    <button type="button" class="mode-tabs-arrow left" id="mode-tabs-left" disabled>‹</button>
+    <div class="mode-tabs" id="mode-tabs">
+      <button class="mode-tab active" data-mode="al-mal">AniList ↔ MAL</button>
+      <button class="mode-tab" data-mode="al-al">AniList ↔ AniList</button>
+      <button class="mode-tab" data-mode="mal-mal">MAL ↔ MAL</button>
+      <button class="mode-tab" data-mode="multi">Multi-list</button>
+    </div>
+    <button type="button" class="mode-tabs-arrow right" id="mode-tabs-right">›</button>
   </div>
 
   <!-- AniList vs MAL -->
@@ -540,6 +544,33 @@
     activeMode = mode;
     clearUI();
   });
+
+  // Mode tabs scroll arrows
+  (function () {
+    const wrap = document.getElementById('mode-tabs-wrap');
+    const tabs = document.getElementById('mode-tabs');
+    const leftBtn = document.getElementById('mode-tabs-left');
+    const rightBtn = document.getElementById('mode-tabs-right');
+
+    function updateArrows() {
+      const sl = tabs.scrollLeft;
+      const sw = tabs.clientWidth;
+      const tw = tabs.scrollWidth;
+      leftBtn.disabled = sl <= 0;
+      rightBtn.disabled = sl + sw >= tw - 1;
+    }
+
+    tabs.addEventListener('scroll', updateArrows);
+    window.addEventListener('resize', updateArrows);
+    updateArrows();
+
+    leftBtn.addEventListener('click', () => {
+      tabs.scrollBy({ left: -100, behavior: 'smooth' });
+    });
+    rightBtn.addEventListener('click', () => {
+      tabs.scrollBy({ left: 100, behavior: 'smooth' });
+    });
+  })();
 
   // ── Multi-list form ───────────────────────────────────────────────────────
 
