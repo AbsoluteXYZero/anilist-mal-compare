@@ -116,7 +116,6 @@ async function fetchMAL(username) {
 
     if (!Array.isArray(batch)) throw new Error(`MAL: unexpected response format`);
 
-    // Empty array on first page = private list or genuinely empty
     if (batch.length === 0 && offset === 0) {
       throw new Error(`MAL: "${username}"'s list appears to be empty or private`);
     }
@@ -257,6 +256,8 @@ app.get('/api/export/anilist-to-mal', async (req, res) => {
   }
 });
 
+// ── AniList vs MAL ────────────────────────────────────────────────────────────
+
 app.get('/api/compare', async (req, res) => {
   const alUser  = (req.query.al  ?? '').trim();
   const malUser = (req.query.mal ?? '').trim();
@@ -318,6 +319,183 @@ app.get('/api/compare', async (req, res) => {
     }
 
     res.json({ alTotal: alEntries.length, malTotal: malEntries.length, onlyAL, onlyMAL, statusDiffs, epDiffs, noMalId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── AniList vs AniList ────────────────────────────────────────────────────────
+
+app.get('/api/compare/al-al', async (req, res) => {
+  const al1 = (req.query.al1 ?? '').trim();
+  const al2 = (req.query.al2 ?? '').trim();
+
+  if (!al1 || !al2) return res.status(400).json({ error: 'Both usernames are required.' });
+  if (al1.length > 100 || al2.length > 100) return res.status(400).json({ error: 'Username is too long.' });
+
+  try {
+    const [list1, list2] = await Promise.all([fetchAniList(al1), fetchAniList(al2)]);
+
+    const map1 = new Map(list1.map(e => [e.anilistId, e]));
+    const map2 = new Map(list2.map(e => [e.anilistId, e]));
+
+    const only1 = [], only2 = [], statusDiffs = [], epDiffs = [];
+
+    for (const e1 of list1) {
+      const e2 = map2.get(e1.anilistId);
+      if (!e2) {
+        only1.push({ title: e1.title, anilistId: e1.anilistId, malId: e1.malId, status: AL_STATUS_LABEL[e1.status] ?? e1.status, progress: e1.progress, totalEps: e1.totalEps });
+        continue;
+      }
+      if (e1.status !== e2.status) {
+        statusDiffs.push({
+          title: e1.title, anilistId: e1.anilistId, malId: e1.malId,
+          s1: AL_STATUS_LABEL[e1.status] ?? e1.status,
+          s2: AL_STATUS_LABEL[e2.status] ?? e2.status,
+          p1: e1.progress, p2: e2.progress,
+          totalEps: e1.totalEps ?? e2.totalEps,
+        });
+      }
+      if (e1.progress !== e2.progress) {
+        epDiffs.push({
+          title: e1.title, anilistId: e1.anilistId, malId: e1.malId,
+          p1: e1.progress, p2: e2.progress,
+          totalEps: e1.totalEps ?? e2.totalEps,
+          status: AL_STATUS_LABEL[e1.status] ?? e1.status,
+        });
+      }
+    }
+
+    for (const e2 of list2) {
+      if (!map1.has(e2.anilistId)) {
+        only2.push({ title: e2.title, anilistId: e2.anilistId, malId: e2.malId, status: AL_STATUS_LABEL[e2.status] ?? e2.status, progress: e2.progress, totalEps: e2.totalEps });
+      }
+    }
+
+    res.json({ t1: list1.length, t2: list2.length, only1, only2, statusDiffs, epDiffs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── MAL vs MAL ────────────────────────────────────────────────────────────────
+
+app.get('/api/compare/mal-mal', async (req, res) => {
+  const mal1 = (req.query.mal1 ?? '').trim();
+  const mal2 = (req.query.mal2 ?? '').trim();
+
+  if (!mal1 || !mal2) return res.status(400).json({ error: 'Both usernames are required.' });
+  if (mal1.length > 100 || mal2.length > 100) return res.status(400).json({ error: 'Username is too long.' });
+
+  try {
+    const [list1, list2] = await Promise.all([fetchMAL(mal1), fetchMAL(mal2)]);
+
+    const map1 = new Map(list1.map(e => [e.malId, e]));
+    const map2 = new Map(list2.map(e => [e.malId, e]));
+
+    const only1 = [], only2 = [], statusDiffs = [], epDiffs = [];
+
+    for (const e1 of list1) {
+      const e2 = map2.get(e1.malId);
+      if (!e2) {
+        only1.push({ title: e1.title, malId: e1.malId, status: MAL_STATUS_LABEL[e1.status] ?? String(e1.status), progress: e1.progress, totalEps: e1.totalEps });
+        continue;
+      }
+      if (e1.status !== e2.status) {
+        statusDiffs.push({
+          title: e1.title, malId: e1.malId,
+          s1: MAL_STATUS_LABEL[e1.status] ?? String(e1.status),
+          s2: MAL_STATUS_LABEL[e2.status] ?? String(e2.status),
+          p1: e1.progress, p2: e2.progress,
+          totalEps: e1.totalEps ?? e2.totalEps,
+        });
+      }
+      if (e1.progress !== e2.progress) {
+        epDiffs.push({
+          title: e1.title, malId: e1.malId,
+          p1: e1.progress, p2: e2.progress,
+          totalEps: e1.totalEps ?? e2.totalEps,
+          status: MAL_STATUS_LABEL[e1.status] ?? String(e1.status),
+        });
+      }
+    }
+
+    for (const e2 of list2) {
+      if (!map1.has(e2.malId)) {
+        only2.push({ title: e2.title, malId: e2.malId, status: MAL_STATUS_LABEL[e2.status] ?? String(e2.status), progress: e2.progress, totalEps: e2.totalEps });
+      }
+    }
+
+    res.json({ t1: list1.length, t2: list2.length, only1, only2, statusDiffs, epDiffs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Multi-list ────────────────────────────────────────────────────────────────
+
+app.get('/api/compare/multi', async (req, res) => {
+  let raw = req.query.list;
+  if (!raw) return res.status(400).json({ error: 'At least 2 lists are required.' });
+  if (!Array.isArray(raw)) raw = [raw];
+  if (raw.length < 2) return res.status(400).json({ error: 'At least 2 lists are required.' });
+  if (raw.length > 6) return res.status(400).json({ error: 'Maximum 6 lists allowed.' });
+
+  const users = [];
+  for (const item of raw) {
+    const colon = item.indexOf(':');
+    if (colon < 0) return res.status(400).json({ error: `Invalid format: ${item}` });
+    const type     = item.slice(0, colon);
+    const username = item.slice(colon + 1).trim();
+    if (!['al', 'mal'].includes(type) || !username || username.length > 100)
+      return res.status(400).json({ error: `Invalid list entry: ${item}` });
+    users.push({ type, username });
+  }
+
+  try {
+    const fetched = await Promise.all(
+      users.map(u => u.type === 'al' ? fetchAniList(u.username) : fetchMAL(u.username))
+    );
+
+    const animeMap = new Map();
+    const noMalId  = [];
+
+    for (let i = 0; i < fetched.length; i++) {
+      for (const e of fetched[i]) {
+        if (!e.malId) {
+          if (users[i].type === 'al')
+            noMalId.push({ title: e.title, userIdx: i, status: AL_STATUS_LABEL[e.status] ?? e.status, progress: e.progress, totalEps: e.totalEps });
+          continue;
+        }
+        if (!animeMap.has(e.malId)) {
+          animeMap.set(e.malId, {
+            title:     e.title,
+            malId:     e.malId,
+            anilistId: e.anilistId ?? null,
+            entries:   new Array(users.length).fill(null),
+          });
+        }
+        const row = animeMap.get(e.malId);
+        if (e.anilistId && !row.anilistId) row.anilistId = e.anilistId;
+        const statusLabel = users[i].type === 'al'
+          ? (AL_STATUS_LABEL[e.status] ?? e.status)
+          : (MAL_STATUS_LABEL[e.status] ?? String(e.status));
+        row.entries[i] = { status: statusLabel, progress: e.progress, totalEps: e.totalEps ?? null };
+      }
+    }
+
+    const rows = [];
+    for (const row of animeMap.values()) {
+      const present = row.entries.filter(Boolean);
+      const isDiff  = present.length < users.length
+        || new Set(present.map(e => e.status)).size   > 1
+        || new Set(present.map(e => e.progress)).size > 1;
+      rows.push({ ...row, isDiff });
+    }
+
+    rows.sort((a, b) => a.title.localeCompare(b.title));
+
+    res.json({ users, totals: fetched.map(l => l.length), rows, noMalId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
